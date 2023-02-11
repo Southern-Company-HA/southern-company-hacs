@@ -1,20 +1,18 @@
 """Config flow for Southern Company integration."""
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
+from collections.abc import Mapping
 from typing import Any
 
-from southern_company_api.parser import (
-    CantReachSouthernCompany,
-    InvalidLogin,
-    SouthernCompanyAPI,
-)
 import voluptuous as vol
-
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_PASSWORD
+from homeassistant.const import CONF_USERNAME
 from homeassistant.data_entry_flow import FlowResult
+from southern_company_api.parser import CantReachSouthernCompany
+from southern_company_api.parser import InvalidLogin
+from southern_company_api.parser import SouthernCompanyAPI
 
 from .const import DOMAIN
 
