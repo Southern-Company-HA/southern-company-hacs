@@ -1,0 +1,11 @@
+{
+  "domain": "southern_company_hacs",
+  "name": "Southern Company HACS",
+  "codeowners": ["@Lash-L"],
+  "config_flow": true,
+  "dependencies": ["recorder"],
+  "documentation": "https://github.com/Lash-L/southern-company-hacs",
+  "issue_tracker": "https://github.com/Lash-L/southern-company-hacs/issues",
+  "iot_class": "cloud_polling",
+  "requirements": ["southern-company-api==0.3.1"]
+}
