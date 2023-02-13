@@ -40,6 +40,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         key="dollars_to_date",
         name="Monthly cost",
         device_class=SensorDeviceClass.MONETARY,
+        native_precision=2,
         value_fn=lambda data: data.dollars_to_date,
     ),
     SouthernCompanyEntityDescription(
