@@ -1,3 +1,3 @@
 """Constants for the Southern Company integration."""
 
-DOMAIN = "southern_company"
+DOMAIN = "southern_company_hacs"
