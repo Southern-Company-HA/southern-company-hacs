@@ -53,11 +53,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle the initial step."""
+        _LOGGER.debug("Added user step")
         errors: dict[str, str] = {}
         if user_input is not None:
             self._async_abort_entries_match({CONF_USERNAME: user_input[CONF_USERNAME]})
             auth = await self.async_authenticate(user_input, errors)
             if auth is not None:
+                _LOGGER.debug("FINISHED AUTH OF USER")
                 return auth
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
