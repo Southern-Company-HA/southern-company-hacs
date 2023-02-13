@@ -46,7 +46,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
         else:
-            return self.async_create_entry(title="Southern Company Hacs", data=user_input)
+            return self.async_create_entry(
+                title="Southern Company Hacs", data=user_input
+            )
         return None
 
     async def async_step_user(
