@@ -67,6 +67,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> FlowResult:
         """Handle reauthentication."""
+        _LOGGER.debug("Reauth?")
         return await self.async_step_reauth_confirm(entry_data)
 
     async def async_step_reauth_confirm(
