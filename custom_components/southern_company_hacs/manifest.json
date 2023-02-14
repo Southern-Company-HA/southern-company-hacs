@@ -7,6 +7,6 @@
   "documentation": "https://github.com/Lash-L/southern-company-hacs",
   "issue_tracker": "https://github.com/Lash-L/southern-company-hacs/issues",
   "iot_class": "cloud_polling",
-  "requirements": ["southern-company-api==0.3.3"],
-  "version": "0.0.4"
+  "requirements": ["southern-company-api==0.3.4"],
+  "version": "0.0.5"
 }
