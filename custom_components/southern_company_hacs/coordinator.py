@@ -131,7 +131,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     continue
                 from_time = from_time.replace(minute=0, second=0, microsecond=0)
                 _cost_sum += data.cost
-                _usage_sum += data.cost
+                _usage_sum += data.usage
 
                 cost_statistics.append(
                     StatisticData(
