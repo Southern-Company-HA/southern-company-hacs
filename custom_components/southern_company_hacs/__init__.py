@@ -13,6 +13,7 @@ from southern_company_api.exceptions import InvalidLogin
 from southern_company_api.exceptions import NoRequestTokenFound
 from southern_company_api.exceptions import NoScTokenFound
 from southern_company_api.parser import SouthernCompanyAPI
+from homeassistant.helpers import aiohttp_client
 
 from .const import DOMAIN
 from .coordinator import SouthernCompanyCoordinator
@@ -27,6 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     sca = SouthernCompanyAPI(
         entry.data[CONF_USERNAME],
         entry.data[CONF_PASSWORD],
+        aiohttp_client.async_get_clientsession(hass))
     )
     try:
         await sca.authenticate()
