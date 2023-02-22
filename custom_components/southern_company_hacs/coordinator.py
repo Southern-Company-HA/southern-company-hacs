@@ -74,7 +74,9 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
             )
             if not last_stats:
                 # First time we insert 1 year of data (if available)
-                _LOGGER.info("Loading account data for the first time. This may take a while...")
+                _LOGGER.info(
+                    "Loading account data for the first time. This may take a while..."
+                )
                 hourly_data = await account.get_hourly_data(
                     datetime.datetime.now() - timedelta(days=365),
                     datetime.datetime.now(),

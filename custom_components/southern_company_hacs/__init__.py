@@ -8,12 +8,12 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import aiohttp_client
 from southern_company_api.exceptions import CantReachSouthernCompany
 from southern_company_api.exceptions import InvalidLogin
 from southern_company_api.exceptions import NoRequestTokenFound
 from southern_company_api.exceptions import NoScTokenFound
 from southern_company_api.parser import SouthernCompanyAPI
-from homeassistant.helpers import aiohttp_client
 
 from .const import DOMAIN
 from .coordinator import SouthernCompanyCoordinator
