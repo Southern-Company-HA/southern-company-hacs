@@ -46,18 +46,22 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
         self,
     ) -> dict[str, southern_company_api.account.MonthlyUsage]:
         """Update data via API."""
-        if await self._southern_company_connection.jwt is not None:
-            account_month_data: dict[
-                str, southern_company_api.account.MonthlyUsage
-            ] = {}
-            for account in await self._southern_company_connection.accounts:
-                _LOGGER.debug("Updating sensor data for %s", account.number)
-                account_month_data[account.number] = await account.get_month_data(
-                    await self._southern_company_connection.jwt
-                )
-            # Note: insert statistics can be somewhat slow on first setup.
-            await self._insert_statistics()
-            return account_month_data
+        try:
+            if await self._southern_company_connection.jwt is not None:
+                account_month_data: dict[
+                    str, southern_company_api.account.MonthlyUsage
+                ] = {}
+                for account in await self._southern_company_connection.accounts:
+                    _LOGGER.debug("Updating sensor data for %s", account.number)
+                    account_month_data[account.number] = await account.get_month_data(
+                        await self._southern_company_connection.jwt
+                    )
+                # Note: insert statistics can be somewhat slow on first setup.
+                await self._insert_statistics()
+                return account_month_data
+        except (southern_company_api.exceptions.NoJwtTokenFound, southern_company_api.exceptions.NoScTokenFound) as ex:
+            raise UpdateFailed("Jwt is None") from ex
+
         raise UpdateFailed("No jwt token")
 
     async def _insert_statistics(self) -> None:
@@ -65,7 +69,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
         if await self._southern_company_connection.jwt is None:
             raise UpdateFailed("Jwt is None")
         for account in await self._southern_company_connection.accounts:
-            _LOGGER.debug(f"Loading Southern Company statistics for %s", account.number)
+            _LOGGER.debug("Loading Southern Company statistics for %s", account.number)
             cost_statistic_id = f"{DOMAIN}:energy_" f"cost_" f"{account.number}"
             usage_statistic_id = f"{DOMAIN}:energy_" f"usage_" f"{account.number}"
 
