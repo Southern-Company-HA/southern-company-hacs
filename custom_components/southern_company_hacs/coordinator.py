@@ -1,20 +1,21 @@
 """Coordinator to handle southern Company connections."""
 import datetime
-import logging
 from datetime import timedelta
+import logging
 
 import southern_company_api
 from southern_company_api.exceptions import SouthernCompanyException
+
 from homeassistant.components.recorder import get_instance
-from homeassistant.components.recorder.models import StatisticData
-from homeassistant.components.recorder.models import StatisticMetaData
-from homeassistant.components.recorder.statistics import async_add_external_statistics
-from homeassistant.components.recorder.statistics import get_last_statistics
-from homeassistant.components.recorder.statistics import statistics_during_period
+from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.components.recorder.statistics import (
+    async_add_external_statistics,
+    get_last_statistics,
+    statistics_during_period,
+)
 from homeassistant.const import UnitOfEnergy
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
 
@@ -33,7 +34,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
-            name="Southern Company Hacs",
+            name="Southern Company",
             update_interval=timedelta(minutes=60),
         )
         self._southern_company_connection = southern_company_connection
@@ -70,7 +71,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
         if await self._southern_company_connection.jwt is None:
             raise UpdateFailed("Jwt is None")
         for account in await self._southern_company_connection.accounts:
-            _LOGGER.debug("Loading Southern Company statistics for %s", account.number)
+            _LOGGER.debug("Updating Statistics for %s", account.number)
             cost_statistic_id = f"{DOMAIN}:energy_" f"cost_" f"{account.number}"
             usage_statistic_id = f"{DOMAIN}:energy_" f"usage_" f"{account.number}"
 
@@ -80,7 +81,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
             if not last_stats:
                 # First time we insert 1 year of data (if available)
                 _LOGGER.info(
-                    "Loading account data for the first time. This may take a while..."
+                    "Updating statistic for the first time, this may take a while"
                 )
                 hourly_data = await account.get_hourly_data(
                     datetime.datetime.now() - timedelta(days=365),
@@ -136,7 +137,8 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     continue
                 from_time = data.time
                 if from_time is None or (
-                    last_stats_time is not None and from_time <= last_stats_time
+                    last_stats_time is not None
+                    and from_time.timestamp() <= last_stats_time
                 ):
                     continue
                 from_time = from_time.replace(minute=0, second=0, microsecond=0)
@@ -161,7 +163,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
             cost_metadata = StatisticMetaData(
                 has_mean=False,
                 has_sum=True,
-                name=f"{account.name} cost",
+                name=f"Southern Company {account.name} cost",
                 source=DOMAIN,
                 statistic_id=cost_statistic_id,
                 unit_of_measurement=None,
@@ -169,7 +171,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
             usage_metadata = StatisticMetaData(
                 has_mean=False,
                 has_sum=True,
-                name=f"{account.name} usage",
+                name=f"Southern Company {account.name} usage",
                 source=DOMAIN,
                 statistic_id=usage_statistic_id,
                 unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
