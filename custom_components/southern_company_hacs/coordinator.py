@@ -34,7 +34,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
-            name="Southern Company",
+            name="Southern Company Hacs",
             update_interval=timedelta(minutes=60),
         )
         self._southern_company_connection = southern_company_connection
