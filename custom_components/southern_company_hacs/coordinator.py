@@ -104,7 +104,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                 )
 
                 from_time = hourly_data[0].time
-                start = from_time - timedelta(hours=1)
+                start = from_time
                 cost_stat = await get_instance(self.hass).async_add_executor_job(
                     statistics_during_period,
                     self.hass,
