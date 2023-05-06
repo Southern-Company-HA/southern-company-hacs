@@ -1,0 +1,28 @@
+---
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download repo
+        uses: actions/checkout@v1
+
+      - name: Zip southern_company_hacs dir
+        run: |
+          cd /home/runner/work/southern-company-hacs/southern-company-hacs/custom_components/southern_company_hacs
+          zip southern_company_hacs.zip -r ./
+
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /home/runner/work/southern-company-hacs/southern-company-hacs/custom_components/southern_company_hacs/southern_company_hacs.zip
+          asset_name: southern_company_hacs.zip
+          tag: ${{ github.ref }}
+          overwrite: true
