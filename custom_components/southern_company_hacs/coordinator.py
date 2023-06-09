@@ -34,7 +34,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
-            name="Southern Company Hacs",
+            name="Southern Company",
             update_interval=timedelta(minutes=60),
         )
         self._southern_company_connection = southern_company_connection
@@ -62,7 +62,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                 await self._insert_statistics()
                 return account_month_data
         except SouthernCompanyException as ex:
-            raise UpdateFailed(f"Failed updating jwt token: {ex}") from ex
+            raise UpdateFailed("Failed updating jwt token") from ex
 
         raise UpdateFailed("No jwt token")
 
@@ -76,7 +76,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
             usage_statistic_id = f"{DOMAIN}:energy_" f"usage_" f"{account.number}"
 
             last_stats = await get_instance(self.hass).async_add_executor_job(
-                get_last_statistics, self.hass, 1, usage_statistic_id, True, {}
+                get_last_statistics, self.hass, 1, usage_statistic_id, True, set()
             )
             if not last_stats:
                 # First time we insert 1 year of data (if available)
@@ -104,7 +104,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                 )
 
                 from_time = hourly_data[0].time
-                start = from_time
+                start = from_time - timedelta(hours=1)
                 cost_stat = await get_instance(self.hass).async_add_executor_job(
                     statistics_during_period,
                     self.hass,
@@ -115,7 +115,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     None,
                     {"sum"},
                 )
-                _cost_sum = cost_stat[cost_statistic_id][0]["sum"]
+                _cost_sum = cost_stat[cost_statistic_id][0]["sum"] or 0.0
                 last_stats_time = cost_stat[cost_statistic_id][0]["start"]
                 usage_stat = await get_instance(self.hass).async_add_executor_job(
                     statistics_during_period,
@@ -127,7 +127,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     None,
                     {"sum"},
                 )
-                _usage_sum = usage_stat[usage_statistic_id][0]["sum"]
+                _usage_sum = usage_stat[usage_statistic_id][0]["sum"] or 0.0
 
             cost_statistics = []
             usage_statistics = []
