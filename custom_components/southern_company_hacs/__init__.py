@@ -28,7 +28,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     sca = SouthernCompanyAPI(
         entry.data[CONF_USERNAME],
         entry.data[CONF_PASSWORD],
-        aiohttp_client.async_get_clientsession(hass))
+        aiohttp_client.async_get_clientsession(hass),
+    )
     try:
         await sca.authenticate()
     except CantReachSouthernCompany as err:
