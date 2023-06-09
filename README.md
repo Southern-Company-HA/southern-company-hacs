@@ -9,13 +9,9 @@
 
 [![hacs][hacsbadge]][hacs]
 [![Project Maintenance][maintenance-shield]][user_profile]
-[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
-
-**TO BE REMOVED: If you need help, as a developer, to use this custom component tempalte,
-please look at the [User Guide in the Cookiecutter documentation](https://cookiecutter-homeassistant-custom-component.readthedocs.io/en/stable/quickstart.html)**
 
 **This component will set up the following platforms.**
 
@@ -24,8 +20,6 @@ please look at the [User Guide in the Cookiecutter documentation](https://cookie
 | `binary_sensor` | Show something `True` or `False`.         |
 | `sensor`        | Show info from Southern Company HACS API. |
 | `switch`        | Switch something `True` or `False`.       |
-
-![example][exampleimg]
 
 ## Installation
 
