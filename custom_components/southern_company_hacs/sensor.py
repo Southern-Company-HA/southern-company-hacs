@@ -10,7 +10,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.components.sensor import SensorStateClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfEnergy
+from homeassistant.const import UnitOfEnergy, CURRENCY_DOLLAR
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -40,6 +40,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         key="dollars_to_date",
         name="Monthly cost",
         device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
         suggested_display_precision=2,
         value_fn=lambda data: data.dollars_to_date,
     ),
@@ -55,6 +56,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         key="average_daily_cost",
         name="Average daily cost",
         device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
         value_fn=lambda data: data.average_daily_cost,
     ),
     SouthernCompanyEntityDescription(
@@ -84,6 +86,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         key="projected_bill_amount_low",
         name="Lower projected monthly cost",
         device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda data: data.projected_bill_amount_low,
     ),
@@ -91,6 +94,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         key="projected_bill_amount_high",
         name="Higher projected monthly cost",
         device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda data: data.projected_bill_amount_high,
     ),
