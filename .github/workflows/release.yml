@@ -19,7 +19,7 @@ jobs:
           zip southern_company_hacs.zip -r ./
 
       - name: Upload zip to release
-        uses: svenstaro/upload-release-action@v1-release
+        uses: svenstaro/upload-release-action@2.7.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: /home/runner/work/southern-company-hacs/southern-company-hacs/custom_components/southern_company_hacs/southern_company_hacs.zip
