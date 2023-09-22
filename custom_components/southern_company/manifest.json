@@ -1,5 +1,5 @@
 {
-  "domain": "southern_company_hacs",
+  "domain": "southern_company",
   "name": "Southern Company",
   "codeowners": ["@Lash-L"],
   "config_flow": true,

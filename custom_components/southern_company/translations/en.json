@@ -4,7 +4,9 @@
       "already_configured": "Service is already configured"
     },
     "error": {
-      "unused": "Please do not use this version of the integration - use Southern Company instead"
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
     },
     "step": {
       "user": {

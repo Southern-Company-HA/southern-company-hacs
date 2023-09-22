@@ -1,52 +1,22 @@
 """The Southern Company integration."""
 from __future__ import annotations
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigEntryChange
 from homeassistant.const import CONF_PASSWORD
 from homeassistant.const import CONF_USERNAME
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import aiohttp_client
-from southern_company_api.exceptions import CantReachSouthernCompany
-from southern_company_api.exceptions import InvalidLogin
-from southern_company_api.exceptions import NoRequestTokenFound
-from southern_company_api.exceptions import NoScTokenFound
-from southern_company_api.parser import SouthernCompanyAPI
 
 from .const import DOMAIN
-from .coordinator import SouthernCompanyCoordinator
-
+import logging
 PLATFORMS = [Platform.SENSOR]
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Southern Company from a config entry."""
-
-    hass.data.setdefault(DOMAIN, {})
-    sca = SouthernCompanyAPI(
-        entry.data[CONF_USERNAME],
-        entry.data[CONF_PASSWORD],
-        aiohttp_client.async_get_clientsession(hass),
-    )
-    try:
-        await sca.authenticate()
-    except CantReachSouthernCompany as err:
-        raise ConfigEntryNotReady("Can not connect to the southern company") from err
-    except (NoScTokenFound, NoRequestTokenFound) as err:
-        raise ConfigEntryNotReady(
-            "Token not found in southern company response. Please double check your credentials or open an issue"
-        ) from err
-    except InvalidLogin as err:
-        raise ConfigEntryAuthFailed("Login incorrect") from err
-    coordinator = SouthernCompanyCoordinator(hass, sca)
-    await coordinator.async_config_entry_first_refresh()
-    hass.data[DOMAIN][entry.entry_id] = coordinator
-
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    return True
+    _LOGGER.error("PLease set up with Southern Company instead of Southern Company HACS")
+    return False
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -55,3 +25,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """"""
+    entry.domain = "southern_company"
+    hass.config_entries.async_update_entry(
+        entry,
+    )
+    hass.config_entries._async_schedule_save()
+    hass.config_entries._async_dispatch(ConfigEntryChange.UPDATED, entry)
+    return True
