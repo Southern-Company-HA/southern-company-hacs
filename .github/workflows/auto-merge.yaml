@@ -1,3 +1,5 @@
+on: pull_request
+
 steps:
   - uses: actions/checkout@v2
   - uses: ahmadnassri/action-dependabot-auto-merge@v2
