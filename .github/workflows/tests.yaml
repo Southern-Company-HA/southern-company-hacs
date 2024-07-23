@@ -61,3 +61,19 @@ jobs:
 
       - name: Hassfest validation
         uses: "home-assistant/actions/hassfest@master"
+
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    needs:
+      - pre-commit
+      - hacs
+      - hassfest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
