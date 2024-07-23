@@ -1,4 +1,5 @@
 """Coordinator to handle southern Company connections."""
+
 import datetime
 import logging
 from datetime import timedelta
