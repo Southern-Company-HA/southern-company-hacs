@@ -1,7 +1,17 @@
+name: Dependabot auto-merge
 on: pull_request
 
-steps:
-  - uses: actions/checkout@v2
-  - uses: ahmadnassri/action-dependabot-auto-merge@v2
-    with:
-      github-token: ${{ secrets.mytoken }}
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
