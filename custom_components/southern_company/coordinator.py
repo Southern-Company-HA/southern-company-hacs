@@ -115,19 +115,39 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     None,
                     {"sum"},
                 )
-                _cost_sum = cost_stat[cost_statistic_id][0]["sum"] or 0.0
-                last_stats_time = cost_stat[cost_statistic_id][0]["start"]
-                usage_stat = await get_instance(self.hass).async_add_executor_job(
-                    statistics_during_period,
-                    self.hass,
-                    start,
-                    None,
-                    [usage_statistic_id],
-                    "hour",
-                    None,
-                    {"sum"},
-                )
-                _usage_sum = usage_stat[usage_statistic_id][0]["sum"] or 0.0
+                _LOGGER.warning(cost_stat)
+                _LOGGER.warning("HERE")
+                _LOGGER.info(cost_stat)
+                if cost_statistic_id not in cost_stat:
+                    _LOGGER.warning(
+                        "Something went wrong while getting the statistics. Manually reloading"
+                    )
+                    _LOGGER.info(
+                        "Updating statistic for the first time, this may take a while"
+                    )
+                    hourly_data = await account.get_hourly_data(
+                        datetime.datetime.now() - timedelta(days=365),
+                        datetime.datetime.now(),
+                        await self._southern_company_connection.jwt,
+                    )
+
+                    _cost_sum = 0.0
+                    _usage_sum = 0.0
+                    last_stats_time = None
+                else:
+                    _cost_sum = cost_stat[cost_statistic_id][0]["sum"] or 0.0
+                    last_stats_time = cost_stat[cost_statistic_id][0]["start"]
+                    usage_stat = await get_instance(self.hass).async_add_executor_job(
+                        statistics_during_period,
+                        self.hass,
+                        start,
+                        None,
+                        [usage_statistic_id],
+                        "hour",
+                        None,
+                        {"sum"},
+                    )
+                    _usage_sum = usage_stat[usage_statistic_id][0]["sum"] or 0.0
 
             cost_statistics = []
             usage_statistics = []
