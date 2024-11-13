@@ -17,6 +17,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.const import CURRENCY_DOLLAR
 
 from .const import DOMAIN
 from .coordinator import SouthernCompanyCoordinator
@@ -43,6 +44,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         device_class=SensorDeviceClass.MONETARY,
         suggested_display_precision=2,
         value_fn=lambda data: data.dollars_to_date,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
     ),
     SouthernCompanyEntityDescription(
         key="total_kwh_used",
@@ -57,6 +59,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         name="Average daily cost",
         device_class=SensorDeviceClass.MONETARY,
         value_fn=lambda data: data.average_daily_cost,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
     ),
     SouthernCompanyEntityDescription(
         key="average_daily_usage",
@@ -87,6 +90,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         device_class=SensorDeviceClass.MONETARY,
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda data: data.projected_bill_amount_low,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
     ),
     SouthernCompanyEntityDescription(
         key="projected_bill_amount_high",
@@ -94,6 +98,7 @@ SENSORS: tuple[SouthernCompanyEntityDescription, ...] = (
         device_class=SensorDeviceClass.MONETARY,
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda data: data.projected_bill_amount_high,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
     ),
 )
 
