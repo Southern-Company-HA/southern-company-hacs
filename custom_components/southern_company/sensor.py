@@ -17,10 +17,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.const import (
-    UnitOfEnergy,
-    CURRENCY_DOLLAR,
-)
+from homeassistant.const import CURRENCY_DOLLAR
 
 from .const import DOMAIN
 from .coordinator import SouthernCompanyCoordinator
