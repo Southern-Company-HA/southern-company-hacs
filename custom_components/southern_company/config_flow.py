@@ -2,19 +2,21 @@
 
 from __future__ import annotations
 
-import logging
 from collections.abc import Mapping
+import logging
 from typing import Any
 
+from southern_company_api.parser import (
+    CantReachSouthernCompany,
+    InvalidLogin,
+    SouthernCompanyAPI,
+)
 import voluptuous as vol
+
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD
-from homeassistant.const import CONF_USERNAME
-from homeassistant.data_entry_flow import FlowResult
+from homeassistant.config_entries import ConfigFlowResult
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import aiohttp_client
-from southern_company_api.parser import CantReachSouthernCompany
-from southern_company_api.parser import InvalidLogin
-from southern_company_api.parser import SouthernCompanyAPI
 
 from .const import DOMAIN
 
@@ -35,7 +37,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_authenticate(
         self, user_input: Mapping[str, Any], errors: dict[str, str]
-    ) -> FlowResult | None:
+    ) -> ConfigFlowResult:
         """Handle authentication for all flows to reduce repetition of code."""
         sca = SouthernCompanyAPI(
             user_input["username"],
@@ -51,15 +53,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
-        else:
-            return self.async_create_entry(
-                title="Southern Company Hacs", data=user_input
-            )
-        return None
+
+        return self.async_create_entry(title="Southern Company Hacs", data=user_input)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
         _LOGGER.debug("Added user step")
         errors: dict[str, str] = {}
@@ -73,21 +72,25 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
 
-    async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> FlowResult:
+    async def async_step_reauth(
+        self, entry_data: Mapping[str, Any]
+    ) -> ConfigFlowResult:
         """Handle reauthentication."""
         _LOGGER.debug("Reauth?")
         return await self.async_step_reauth_confirm(entry_data)
 
     async def async_step_reauth_confirm(
         self, user_input: Mapping[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle a flow initiated by reauthentication."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            data_schema = {
-                vol.Required(CONF_USERNAME, default=user_input[CONF_USERNAME]): str,
-                vol.Required(CONF_PASSWORD): str,
-            }
+            data_schema = vol.Schema(
+                {
+                    vol.Required(CONF_USERNAME, default=user_input[CONF_USERNAME]): str,
+                    vol.Required(CONF_PASSWORD): str,
+                }
+            )
             auth = await self.async_authenticate(user_input, errors)
             if auth is not None:
                 return auth

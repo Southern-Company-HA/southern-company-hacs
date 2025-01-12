@@ -6,31 +6,33 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 import southern_company_api
-from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.sensor import SensorEntityDescription
-from homeassistant.components.sensor import SensorStateClass
+
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfEnergy
+from homeassistant.const import CURRENCY_DOLLAR, UnitOfEnergy
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.const import CURRENCY_DOLLAR
 
 from .const import DOMAIN
 from .coordinator import SouthernCompanyCoordinator
 
 
-@dataclass
+@dataclass(frozen=True)
 class SouthernCompanyEntityDescriptionMixin:
     """Mixin for required keys."""
 
     value_fn: Callable[[southern_company_api.account.MonthlyUsage], str | float]
 
 
-@dataclass
+@dataclass(frozen=True)
 class SouthernCompanyEntityDescription(
     SensorEntityDescription, SouthernCompanyEntityDescriptionMixin
 ):
@@ -117,8 +119,14 @@ async def async_setup_entry(
             name=f"Account {account.number}",
             manufacturer="Southern Company",
         )
-        for sensor in SENSORS:
-            entities.append(SouthernCompanySensor(account, coordinator, sensor, device))
+
+        # entities.append(SouthernCompanySensor(account, coordinator, sensor, device))
+        entities.extend(
+            [
+                SouthernCompanySensor(account, coordinator, sensor, device)
+                for sensor in SENSORS
+            ]
+        )
 
     async_add_entities(entities)
 
