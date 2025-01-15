@@ -1,32 +1,32 @@
 """The Southern Company integration."""
 
 from __future__ import annotations
+
 import time
 
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD
-from homeassistant.const import CONF_USERNAME
-from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import aiohttp_client
-from southern_company_api.exceptions import CantReachSouthernCompany
-from southern_company_api.exceptions import InvalidLogin
-from southern_company_api.exceptions import NoRequestTokenFound
-from southern_company_api.exceptions import NoScTokenFound
+from southern_company_api.exceptions import (
+    CantReachSouthernCompany,
+    InvalidLogin,
+    NoRequestTokenFound,
+    NoScTokenFound,
+)
 from southern_company_api.parser import SouthernCompanyAPI
+
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.helpers import aiohttp_client
 
 from .const import DOMAIN
 from .coordinator import SouthernCompanyCoordinator
 
 PLATFORMS = [Platform.SENSOR]
-failures = {}
+failures: dict[str, float] = {}
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Southern Company from a config entry."""
-    global failures
     if entry.entry_id in failures:
         if not time.time() - failures[entry.entry_id] > 600:
             raise ConfigEntryNotReady(

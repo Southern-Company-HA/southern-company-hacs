@@ -5,8 +5,10 @@
   "config_flow": true,
   "dependencies": ["recorder"],
   "documentation": "https://github.com/Lash-L/southern-company-hacs",
-  "iot_class": "cloud_polling",
+  "integration_type": "hub",
   "issue_tracker": "https://github.com/Lash-L/southern-company-hacs/issues",
-  "requirements": ["southern-company-api==0.6.5"],
   "version": "1.0.0"
+  "loggers": ["southern_company"],
+  "quality_scale": "bronze",
+  "requirements": ["southern-company-api==0.6.5"]
 }

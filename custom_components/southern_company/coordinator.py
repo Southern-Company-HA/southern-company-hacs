@@ -1,21 +1,22 @@
 """Coordinator to handle southern Company connections."""
 
 import datetime
-import logging
 from datetime import timedelta
+import logging
 
 import southern_company_api
+from southern_company_api.exceptions import SouthernCompanyException
+
 from homeassistant.components.recorder import get_instance
-from homeassistant.components.recorder.models import StatisticData
-from homeassistant.components.recorder.models import StatisticMetaData
-from homeassistant.components.recorder.statistics import async_add_external_statistics
-from homeassistant.components.recorder.statistics import get_last_statistics
-from homeassistant.components.recorder.statistics import statistics_during_period
+from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.components.recorder.statistics import (
+    async_add_external_statistics,
+    get_last_statistics,
+    statistics_during_period,
+)
 from homeassistant.const import UnitOfEnergy
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.helpers.update_coordinator import UpdateFailed
-from southern_company_api.exceptions import SouthernCompanyException
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
 
