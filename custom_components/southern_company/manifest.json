@@ -7,7 +7,7 @@
   "documentation": "https://github.com/Lash-L/southern-company-hacs",
   "integration_type": "hub",
   "issue_tracker": "https://github.com/Lash-L/southern-company-hacs/issues",
-  "version": "1.0.0"
+  "version": "1.0.0",
   "loggers": ["southern_company"],
   "quality_scale": "bronze",
   "requirements": ["southern-company-api==0.6.5"]
