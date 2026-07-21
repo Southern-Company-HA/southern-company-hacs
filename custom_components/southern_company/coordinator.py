@@ -86,87 +86,220 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
             last_stats = await get_instance(self.hass).async_add_executor_job(
                 get_last_statistics, self.hass, 1, usage_statistic_id, True, set()
             )
+            is_hourly = True
+            jwt = await self._southern_company_connection.jwt
             if not last_stats:
-                # First time we insert 1 year of data (if available)
+                # First time setup: attempt to fetch 23 months of hourly data
                 _LOGGER.info(
-                    "Updating statistic for the first time, this may take a while"
+                    "Updating statistic for the first time. Attempting to fetch hourly data for %s",
+                    account.number,
                 )
-                hourly_data = await account.get_hourly_data(
-                    datetime.datetime.now() - timedelta(days=365),
-                    datetime.datetime.now(),
-                    await self._southern_company_connection.jwt,
-                )
+                try:
+                    hourly_data = await account.get_hourly_data(
+                        datetime.datetime.now() - timedelta(days=700),
+                        datetime.datetime.now(),
+                        jwt,
+                    )
+                except Exception as e:
+                    _LOGGER.debug(
+                        "Failed to get hourly data for account %s: %s. Falling back to daily data.",
+                        account.number,
+                        e,
+                    )
+                    hourly_data = []
+
+                if not hourly_data:
+                    _LOGGER.info(
+                        "Fetching up to 23 months of daily data for account %s",
+                        account.number,
+                    )
+                    is_hourly = False
+                    daily_data = await account.get_daily_data(
+                        datetime.datetime.now() - timedelta(days=700),
+                        datetime.datetime.now(),
+                        jwt,
+                    )
+                else:
+                    daily_data = []
 
                 _cost_sum = 0.0
                 _usage_sum = 0.0
                 last_stats_time = None
             else:
-                # hourly_consumption/production_data contains the last 30 days
-                # of consumption/production data.
-                # We update the statistics with the last 30 days
-                # of data to handle corrections in the data.
-                hourly_data = await account.get_hourly_data(
-                    datetime.datetime.now() - timedelta(days=31),
-                    datetime.datetime.now(),
-                    await self._southern_company_connection.jwt,
-                )
-
-                from_time = hourly_data[0].time
-                start = from_time - timedelta(hours=1)
-                cost_stat = await get_instance(self.hass).async_add_executor_job(
+                # Ongoing update: detect established series granularity to prevent mixing hourly and daily rows
+                sample_start = datetime.datetime.now() - timedelta(days=35)
+                check_stat = await get_instance(self.hass).async_add_executor_job(
                     statistics_during_period,
                     self.hass,
-                    start,
+                    sample_start,
                     None,
                     [cost_statistic_id],
                     "hour",
                     None,
                     {"sum"},
                 )
-                if cost_statistic_id not in cost_stat:
+                is_hourly = bool(
+                    cost_statistic_id in check_stat and check_stat[cost_statistic_id]
+                )
+
+                if is_hourly:
+                    try:
+                        hourly_data = await account.get_hourly_data(
+                            datetime.datetime.now() - timedelta(days=31),
+                            datetime.datetime.now(),
+                            jwt,
+                        )
+                    except Exception as e:
+                        _LOGGER.warning(
+                            "Failed to fetch hourly data for established hourly account %s: %s",
+                            account.number,
+                            e,
+                        )
+                        continue
+
+                    if not hourly_data:
+                        _LOGGER.warning(
+                            "No hourly data returned for established hourly account %s",
+                            account.number,
+                        )
+                        continue
+
+                    daily_data = []
+                    from_time = hourly_data[0].time
+                    period = "hour"
+                    start_offset = timedelta(hours=1)
+                else:
+                    try:
+                        daily_data = await account.get_daily_data(
+                            datetime.datetime.now() - timedelta(days=31),
+                            datetime.datetime.now(),
+                            jwt,
+                        )
+                    except Exception as e:
+                        _LOGGER.warning(
+                            "Failed to fetch daily data for account %s: %s",
+                            account.number,
+                            e,
+                        )
+                        continue
+
+                    if not daily_data:
+                        _LOGGER.warning("No daily data returned for account %s", account.number)
+                        continue
+
+                    hourly_data = []
+                    from_time = daily_data[0].date
+                    period = "day"
+                    start_offset = timedelta(days=1)
+
+                if from_time and from_time.tzinfo is None:
+                    from_time = from_time.replace(tzinfo=datetime.timezone.utc)
+                start = from_time - start_offset if from_time else None
+
+                cost_stat = await get_instance(self.hass).async_add_executor_job(
+                    statistics_during_period,
+                    self.hass,
+                    start,
+                    None,
+                    [cost_statistic_id],
+                    period,
+                    None,
+                    {"sum"},
+                )
+                usage_stat = await get_instance(self.hass).async_add_executor_job(
+                    statistics_during_period,
+                    self.hass,
+                    start,
+                    None,
+                    [usage_statistic_id],
+                    period,
+                    None,
+                    {"sum"},
+                )
+
+                # Validate BOTH baselines to prevent restarting cumulative usage or cost at zero
+                has_cost_baseline = (
+                    cost_statistic_id in cost_stat and bool(cost_stat[cost_statistic_id])
+                )
+                has_usage_baseline = (
+                    usage_statistic_id in usage_stat
+                    and bool(usage_stat[usage_statistic_id])
+                )
+
+                if not has_cost_baseline or not has_usage_baseline:
                     _LOGGER.warning(
-                        "Something went wrong while getting the statistics. Manually reloading"
+                        "Missing baseline statistics for account %s. Rebuilding history...",
+                        account.number,
                     )
-                    _LOGGER.info(
-                        "Updating statistic for the first time, this may take a while"
-                    )
-                    hourly_data = await account.get_hourly_data(
-                        datetime.datetime.now() - timedelta(days=365),
-                        datetime.datetime.now(),
-                        await self._southern_company_connection.jwt,
-                    )
+                    if is_hourly:
+                        try:
+                            hourly_data = await account.get_hourly_data(
+                                datetime.datetime.now() - timedelta(days=700),
+                                datetime.datetime.now(),
+                                jwt,
+                            )
+                        except Exception as e:
+                            _LOGGER.warning("Failed hourly rebuild: %s", e)
+                            continue
+                        if not hourly_data:
+                            continue
+                    else:
+                        try:
+                            daily_data = await account.get_daily_data(
+                                datetime.datetime.now() - timedelta(days=700),
+                                datetime.datetime.now(),
+                                jwt,
+                            )
+                        except Exception as e:
+                            _LOGGER.warning("Failed daily rebuild: %s", e)
+                            continue
+                        if not daily_data:
+                            continue
 
                     _cost_sum = 0.0
                     _usage_sum = 0.0
                     last_stats_time = None
                 else:
                     _cost_sum = cost_stat[cost_statistic_id][0]["sum"] or 0.0
-                    last_stats_time = cost_stat[cost_statistic_id][0]["start"]
-                    usage_stat = await get_instance(self.hass).async_add_executor_job(
-                        statistics_during_period,
-                        self.hass,
-                        start,
-                        None,
-                        [usage_statistic_id],
-                        "hour",
-                        None,
-                        {"sum"},
-                    )
                     _usage_sum = usage_stat[usage_statistic_id][0]["sum"] or 0.0
+                    last_stats_time = max(
+                        cost_stat[cost_statistic_id][0]["start"],
+                        usage_stat[usage_statistic_id][0]["start"],
+                    )
+
+            data_points = hourly_data if is_hourly else daily_data
+            if not data_points:
+                continue
 
             cost_statistics = []
             usage_statistics = []
 
-            for data in hourly_data:
-                if data.cost is None or data.usage is None:
+            for data in data_points:
+                # Southern Company's web portal returns -1 for usage and cost to
+                # represent missing/unbilled days. We skip these placeholder values.
+                if (
+                    data.cost is None
+                    or data.usage is None
+                    or data.usage == -1
+                    or data.cost == -1
+                ):
                     continue
-                from_time = data.time
-                if from_time is None or (
+                from_time = data.time if is_hourly else data.date
+                if from_time is None:
+                    continue
+                # Normalize timezone to UTC and align start time to boundary
+                if from_time.tzinfo is None:
+                    from_time = from_time.replace(tzinfo=datetime.timezone.utc)
+                if is_hourly:
+                    from_time = from_time.replace(minute=0, second=0, microsecond=0)
+                else:
+                    from_time = from_time.replace(hour=0, minute=0, second=0, microsecond=0)
+
+                if (
                     last_stats_time is not None
                     and from_time.timestamp() <= last_stats_time
                 ):
                     continue
-                from_time = from_time.replace(minute=0, second=0, microsecond=0)
                 _cost_sum += data.cost
                 _usage_sum += data.usage
 
@@ -185,22 +318,42 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     )
                 )
 
-            cost_metadata = StatisticMetaData(
-                has_mean=False,
-                has_sum=True,
-                name=f"Southern Company {account.name} cost",
-                source=DOMAIN,
-                statistic_id=cost_statistic_id,
-                unit_of_measurement=CURRENCY_DOLLAR,
+            cost_metadata_kwargs = {
+                "has_mean": False,
+                "has_sum": True,
+                "name": f"Southern Company {account.name} cost",
+                "source": DOMAIN,
+                "statistic_id": cost_statistic_id,
+                "unit_of_measurement": CURRENCY_DOLLAR,
+            }
+            usage_metadata_kwargs = {
+                "has_mean": False,
+                "has_sum": True,
+                "name": f"Southern Company {account.name} usage",
+                "source": DOMAIN,
+                "statistic_id": usage_statistic_id,
+                "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+            }
+
+            # Check if mean_type and unit_class are supported for backwards compatibility
+            stat_fields = (
+                set(StatisticMetaData.__annotations__.keys())
+                if hasattr(StatisticMetaData, "__annotations__")
+                else set()
             )
-            usage_metadata = StatisticMetaData(
-                has_mean=False,
-                has_sum=True,
-                name=f"Southern Company {account.name} usage",
-                source=DOMAIN,
-                statistic_id=usage_statistic_id,
-                unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-            )
+            if "mean_type" in stat_fields:
+                from homeassistant.components.recorder.models import StatisticMeanType
+                cost_metadata_kwargs["mean_type"] = StatisticMeanType.NONE
+                usage_metadata_kwargs["mean_type"] = StatisticMeanType.NONE
+                # Remove deprecated has_mean to prevent warnings when mean_type is present
+                cost_metadata_kwargs.pop("has_mean", None)
+                usage_metadata_kwargs.pop("has_mean", None)
+            if "unit_class" in stat_fields:
+                cost_metadata_kwargs["unit_class"] = None
+                usage_metadata_kwargs["unit_class"] = "energy"
+
+            cost_metadata = StatisticMetaData(**cost_metadata_kwargs)
+            usage_metadata = StatisticMetaData(**usage_metadata_kwargs)
 
             async_add_external_statistics(self.hass, cost_metadata, cost_statistics)
             async_add_external_statistics(self.hass, usage_metadata, usage_statistics)
