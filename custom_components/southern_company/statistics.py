@@ -12,7 +12,7 @@ from southern_company_api.nicor_account import NicorBillingPeriod, NicorDailyUsa
 from homeassistant.components.recorder import get_instance
 from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
 from homeassistant.components.recorder.statistics import async_add_external_statistics
-from homeassistant.const import UnitOfVolume
+from homeassistant.const import CURRENCY_DOLLAR, UnitOfVolume
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
@@ -117,7 +117,7 @@ def _import_daily_statistics(
             name="Nicor Gas daily cost",
             source=DOMAIN,
             statistic_id=STAT_DAILY_COST,
-            unit_of_measurement=None,
+            unit_of_measurement=CURRENCY_DOLLAR,
         ),
         cost_stats,
     )
@@ -166,7 +166,7 @@ def _import_billing_period_statistics(
             name="Nicor Gas billing period cost",
             source=DOMAIN,
             statistic_id=STAT_BILLING_COST,
-            unit_of_measurement=None,
+            unit_of_measurement=CURRENCY_DOLLAR,
         ),
         cost_stats,
     )
