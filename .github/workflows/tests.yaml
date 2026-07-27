@@ -19,7 +19,7 @@ jobs:
     name: Pre-commit
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         uses: actions/setup-python@v5.1.1
@@ -44,7 +44,7 @@ jobs:
     name: HACS
     steps:
       - name: Check out the repository
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v7"
 
       - name: HACS validation
         uses: "hacs/action@22.5.0"
@@ -57,7 +57,7 @@ jobs:
     name: Hassfest
     steps:
       - name: Check out the repository
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v7"
 
       - name: Hassfest validation
         uses: "home-assistant/actions/hassfest@master"
@@ -71,7 +71,7 @@ jobs:
       - hassfest
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --merge "$PR_URL"
         env:
