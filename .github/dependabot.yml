@@ -1,14 +1,31 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: daily
-  - package-ecosystem: pip
+      interval: "monthly"
+    open-pull-requests-limit: 0 # Only security updates create PRs
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Python dependencies in workflows (constraints.txt)
+  - package-ecosystem: "pip"
     directory: "/.github/workflows"
     schedule:
-      interval: daily
-  - package-ecosystem: pip
+      interval: "monthly"
+    open-pull-requests-limit: 0 # Only security updates create PRs
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Python dependencies in root
+  - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: daily
+      interval: "monthly"
+    open-pull-requests-limit: 0 # Only security updates create PRs
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
