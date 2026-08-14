@@ -8,6 +8,7 @@ from typing import Any
 
 from southern_company_api.exceptions import (
     CantReachSouthernCompany,
+    EmailValidationRequired,
     InvalidLogin,
     NoRequestTokenFound,
     NoScTokenFound,
@@ -31,7 +32,6 @@ from .const import (
     CONF_ACCOUNT_TYPE,
     DOMAIN,
 )
-from .parser_patch import EmailValidationRequired
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -19,7 +19,6 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import aiohttp_client
 
-from . import parser_patch
 from .const import (
     ACCOUNT_TYPE_NICOR_GAS,
     CONF_ACCOUNT_TYPE,
@@ -30,8 +29,6 @@ from .coordinator import NicorGasCoordinator, SouthernCompanyCoordinator
 from .statistics import async_import_nicor_statistics
 
 _LOGGER = logging.getLogger(__name__)
-
-parser_patch.apply()
 
 PLATFORMS = [Platform.SENSOR]
 failures: dict[str, float] = {}
