@@ -1,15 +1,24 @@
 {
     "config": {
         "abort": {
-            "already_configured": "Service is already configured"
+            "already_configured": "Service is already configured",
+            "reauth_successful": "Re-authentication was successful"
         },
         "error": {
             "cannot_connect": "Failed to connect",
             "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
+            "unknown": "Unexpected error",
+            "email_validation_required": "Email validation required. Visit https://customerservice2.southerncompany.com/MyProfile/LoginInfo to validate your email, then try again."
         },
         "step": {
             "user": {
+                "data": {
+                    "password": "Password",
+                    "username": "Username",
+                    "account_type": "Account type"
+                }
+            },
+            "reauth_confirm": {
                 "data": {
                     "password": "Password",
                     "username": "Username",

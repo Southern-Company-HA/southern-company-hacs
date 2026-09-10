@@ -47,35 +47,49 @@
 
 ## Installation
 
+### HACS
+
+You can add this repository to HACS if you have it installed:
+
+1. Navigate to HACS. Click the 3 dots at the top right, then select "Custom Repositories".
+2. Enter the URL below for Repository:
+```txt
+https://github.com/Southern-Company-HA/southern-company-hacs
+```
+3. Select the Type "Integration".
+4. Click the "Add" button.
+5. Search for "Southern Company" in HACS, then download and install. You may need to restart HA.
+
+### Manual
+
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
 2. If you do not have a `custom_components` directory (folder) there, you need to create it.
 3. In the `custom_components` directory (folder) create a new folder called `southern_company`.
 4. Download _all_ the files from the `custom_components/southern_company/` directory (folder) in this repository.
 5. Place the files you downloaded in the new directory (folder) you created.
-6. Restart Home Assistant
-7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Southern Company HACS"
+6. Restart Home Assistant.
 
 Using your HA configuration directory (folder) as a starting point you should now also have this:
 
 ```text
-custom_components/southern_company_hacs/translations/en.json
-custom_components/southern_company_hacs/translations/fr.json
-custom_components/southern_company_hacs/translations/nb.json
-custom_components/southern_company_hacs/translations/sensor.en.json
-custom_components/southern_company_hacs/translations/sensor.fr.json
-custom_components/southern_company_hacs/translations/sensor.nb.json
-custom_components/southern_company_hacs/translations/sensor.nb.json
-custom_components/southern_company_hacs/__init__.py
-custom_components/southern_company_hacs/api.py
-custom_components/southern_company_hacs/binary_sensor.py
-custom_components/southern_company_hacs/config_flow.py
-custom_components/southern_company_hacs/const.py
-custom_components/southern_company_hacs/manifest.json
-custom_components/southern_company_hacs/sensor.py
-custom_components/southern_company_hacs/switch.py
+custom_components/southern_company/__init__.py
+custom_components/southern_company/config_flow.py
+custom_components/southern_company/const.py
+custom_components/southern_company/coordinator.py
+custom_components/southern_company/manifest.json
+custom_components/southern_company/parser_patch.py
+custom_components/southern_company/sensor.py
+custom_components/southern_company/services.yaml
+custom_components/southern_company/statistics.py
+custom_components/southern_company/strings.json
+custom_components/southern_company/translations/en.json
 ```
 
-## Configuration is done in the UI
+## Configuration
+
+In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Southern Company HACS"
+
+Configuration is done in the UI.
 
 <!---->
 

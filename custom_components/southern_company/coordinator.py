@@ -62,6 +62,12 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     str, southern_company_api.account.MonthlyUsage
                 ] = {}
                 for account in await self._southern_company_connection.accounts:
+                    if not account.service_point_number:
+                        _LOGGER.warning(
+                            "Skipping account ending in %s: no service point number",
+                            account.number[-4:] if account.number else "????",
+                        )
+                        continue
                     _LOGGER.debug("Updating sensor data for %s", account.number)
                     account_month_data[account.number] = await account.get_month_data(
                         await self._southern_company_connection.jwt
@@ -79,9 +85,11 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
         if await self._southern_company_connection.jwt is None:
             raise UpdateFailed("Jwt is None")
         for account in await self._southern_company_connection.accounts:
+            if not account.service_point_number:
+                continue
             _LOGGER.debug("Updating Statistics for %s", account.number)
-            cost_statistic_id = f"{DOMAIN}:energy_" f"cost_" f"{account.number}"
-            usage_statistic_id = f"{DOMAIN}:energy_" f"usage_" f"{account.number}"
+            cost_statistic_id = f"{DOMAIN}:energy_cost_{account.number}"
+            usage_statistic_id = f"{DOMAIN}:energy_usage_{account.number}"
 
             last_stats = await get_instance(self.hass).async_add_executor_job(
                 get_last_statistics, self.hass, 1, usage_statistic_id, True, set()
@@ -262,9 +270,14 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                 else:
                     _cost_sum = cost_stat[cost_statistic_id][0]["sum"] or 0.0
                     _usage_sum = usage_stat[usage_statistic_id][0]["sum"] or 0.0
-                    last_stats_time = max(
+                    _raw_last_stats_start = max(
                         cost_stat[cost_statistic_id][0]["start"],
                         usage_stat[usage_statistic_id][0]["start"],
+                    )
+                    last_stats_time = (
+                        _raw_last_stats_start.timestamp()
+                        if isinstance(_raw_last_stats_start, datetime.datetime)
+                        else float(_raw_last_stats_start)
                     )
 
             data_points = hourly_data if is_hourly else daily_data
@@ -282,6 +295,10 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                     or data.usage is None
                     or data.usage == -1
                     or data.cost == -1
+                    or isinstance(data.cost, bool)
+                    or isinstance(data.usage, bool)
+                    or not isinstance(data.cost, (int, float))
+                    or not isinstance(data.usage, (int, float))
                 ):
                     continue
                 from_time = data.time if is_hourly else data.date
@@ -343,6 +360,7 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
             )
             if "mean_type" in stat_fields:
                 from homeassistant.components.recorder.models import StatisticMeanType
+
                 cost_metadata_kwargs["mean_type"] = StatisticMeanType.NONE
                 usage_metadata_kwargs["mean_type"] = StatisticMeanType.NONE
                 # Remove deprecated has_mean to prevent warnings when mean_type is present
@@ -354,7 +372,6 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
 
             cost_metadata = StatisticMetaData(**cost_metadata_kwargs)
             usage_metadata = StatisticMetaData(**usage_metadata_kwargs)
-
             async_add_external_statistics(self.hass, cost_metadata, cost_statistics)
             async_add_external_statistics(self.hass, usage_metadata, usage_statistics)
 
@@ -389,6 +406,4 @@ class NicorGasCoordinator(DataUpdateCoordinator):
             return await self._api.get_usage_history()
         except Exception as ex:
             _LOGGER.exception("Unexpected error fetching Nicor Gas usage history")
-            raise UpdateFailed(
-                f"Failed to get Nicor Gas usage history: {ex}"
-            ) from ex
+            raise UpdateFailed(f"Failed to get Nicor Gas usage history: {ex}") from ex
