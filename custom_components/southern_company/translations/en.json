@@ -9,7 +9,7 @@
             "cannot_connect": "Failed to connect",
             "invalid_auth": "Invalid authentication",
             "unknown": "Unexpected error",
-            "email_validation_required": "Email validation required. Visit https://customerservice2.southerncompany.com/MyProfile/LoginInfo to validate your email, then try again."
+            "email_validation_required": "Email validation required. Visit {email_validation_url} to validate your email, then try again."
         },
         "step": {
             "user": {

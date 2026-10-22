@@ -29,7 +29,7 @@
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
       "unknown": "[%key:common::config_flow::error::unknown%]",
-      "email_validation_required": "Email validation required. Visit https://customerservice2.southerncompany.com/MyProfile/LoginInfo to validate your email, then try again."
+      "email_validation_required": "Email validation required. Visit {email_validation_url} to validate your email, then try again."
     },
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_service%]",

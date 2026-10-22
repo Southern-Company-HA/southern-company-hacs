@@ -31,6 +31,7 @@ from .const import (
     ACCOUNT_TYPE_SOUTHERN_COMPANY,
     CONF_ACCOUNT_TYPE,
     DOMAIN,
+    EMAIL_VALIDATION_URL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -131,7 +132,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.debug("FINISHED AUTH OF USER")
                 return auth
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=STEP_USER_DATA_SCHEMA,
+            errors=errors,
+            description_placeholders={"email_validation_url": EMAIL_VALIDATION_URL},
         )
 
     async def async_step_reauth(
@@ -185,7 +189,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }
         )
         return self.async_show_form(
-            step_id="reauth_confirm", data_schema=data_schema, errors=errors
+            step_id="reauth_confirm",
+            data_schema=data_schema,
+            errors=errors,
+            description_placeholders={"email_validation_url": EMAIL_VALIDATION_URL},
         )
 
     async def async_step_reconfigure(
@@ -216,4 +223,5 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             ),
             errors=errors,
+            description_placeholders={"email_validation_url": EMAIL_VALIDATION_URL},
         )

@@ -1,12 +1,14 @@
-"""Tests for the reconfigure step."""
+"""Tests for credential configuration flows."""
 
 from unittest.mock import patch
 
 import pytest
+from homeassistant.config_entries import SOURCE_REAUTH, SOURCE_USER
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.southern_company.config_flow import ConfigFlow
+from custom_components.southern_company.const import EMAIL_VALIDATION_URL
 
 DATA = {
     "username": "user@example.com",
@@ -76,6 +78,37 @@ async def test_reconfigure_errors_reshow_form(hass, entry, error):
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"base": error}
     assert entry.data["password"] == "old"
+    if error == "email_validation_required":
+        assert (
+            result["description_placeholders"]["email_validation_url"]
+            == EMAIL_VALIDATION_URL
+        )
+
+
+@pytest.mark.parametrize("source", [SOURCE_USER, SOURCE_REAUTH])
+async def test_email_validation_error_supplies_url(hass, entry, source):
+    context = {"source": source}
+    if source == SOURCE_REAUTH:
+        context["entry_id"] = entry.entry_id
+    result = await hass.config_entries.flow.async_init(
+        "southern_company",
+        context=context,
+        data=dict(DATA) if source == SOURCE_REAUTH else None,
+    )
+    # A new-user flow must use a username that is not already configured.
+    credentials = {**DATA, "username": "new@example.com"}
+    with patch.object(
+        ConfigFlow, "_try_authenticate", fake_auth("email_validation_required")
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], credentials
+        )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "email_validation_required"}
+    assert (
+        result["description_placeholders"]["email_validation_url"]
+        == EMAIL_VALIDATION_URL
+    )
 
 
 async def test_reconfigure_rejects_username_of_another_entry(hass, entry):

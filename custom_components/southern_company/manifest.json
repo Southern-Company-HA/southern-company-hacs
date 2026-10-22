@@ -6,6 +6,7 @@
   "dependencies": ["recorder"],
   "documentation": "https://github.com/Southern-Company-HA/southern-company-hacs",
   "integration_type": "hub",
+  "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/Southern-Company-HA/southern-company-hacs/issues",
   "loggers": ["southern_company"],
   "quality_scale": "bronze",
