@@ -39,6 +39,24 @@ jobs:
         run: |
           pre-commit run --all-files --show-diff-on-failure --color=always
 
+  test:
+    runs-on: ubuntu-latest
+    name: Config flow tests
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.1.1
+        with:
+          python-version: "3.14"
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements_test.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
   hacs:
     runs-on: "ubuntu-latest"
     name: HACS
@@ -67,6 +85,7 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     needs:
       - pre-commit
+      - test
       - hacs
       - hassfest
     steps:

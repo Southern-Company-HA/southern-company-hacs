@@ -4,13 +4,13 @@
   "codeowners": ["@Lash-L"],
   "config_flow": true,
   "dependencies": ["recorder"],
-  "documentation": "https://github.com/Lash-L/southern-company-hacs",
+  "documentation": "https://github.com/Southern-Company-HA/southern-company-hacs",
   "integration_type": "hub",
-  "issue_tracker": "https://github.com/Lash-L/southern-company-hacs/issues",
+  "issue_tracker": "https://github.com/Southern-Company-HA/southern-company-hacs/issues",
   "loggers": ["southern_company"],
   "quality_scale": "bronze",
   "requirements": [
     "southern-company-api==0.8.1"
   ],
-  "version": "1.1.0"
+  "version": "2.0.0"
 }
