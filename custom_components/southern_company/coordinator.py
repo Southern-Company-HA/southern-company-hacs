@@ -192,7 +192,9 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                         continue
 
                     if not daily_data:
-                        _LOGGER.warning("No daily data returned for account %s", account.number)
+                        _LOGGER.warning(
+                            "No daily data returned for account %s", account.number
+                        )
                         continue
 
                     hourly_data = []
@@ -226,12 +228,11 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                 )
 
                 # Validate BOTH baselines to prevent restarting cumulative usage or cost at zero
-                has_cost_baseline = (
-                    cost_statistic_id in cost_stat and bool(cost_stat[cost_statistic_id])
+                has_cost_baseline = cost_statistic_id in cost_stat and bool(
+                    cost_stat[cost_statistic_id]
                 )
-                has_usage_baseline = (
-                    usage_statistic_id in usage_stat
-                    and bool(usage_stat[usage_statistic_id])
+                has_usage_baseline = usage_statistic_id in usage_stat and bool(
+                    usage_stat[usage_statistic_id]
                 )
 
                 if not has_cost_baseline or not has_usage_baseline:
@@ -310,7 +311,9 @@ class SouthernCompanyCoordinator(DataUpdateCoordinator):
                 if is_hourly:
                     from_time = from_time.replace(minute=0, second=0, microsecond=0)
                 else:
-                    from_time = from_time.replace(hour=0, minute=0, second=0, microsecond=0)
+                    from_time = from_time.replace(
+                        hour=0, minute=0, second=0, microsecond=0
+                    )
 
                 if (
                     last_stats_time is not None

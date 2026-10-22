@@ -16,7 +16,14 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_USERNAME, CURRENCY_DOLLAR, UnitOfEnergy, UnitOfTemperature, UnitOfTime, UnitOfVolume
+from homeassistant.const import (
+    CONF_USERNAME,
+    CURRENCY_DOLLAR,
+    UnitOfEnergy,
+    UnitOfTemperature,
+    UnitOfTime,
+    UnitOfVolume,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -120,14 +127,20 @@ class NicorGasEntityDescriptionMixin:
         [southern_company_api.NicorUsageHistory],
         StateType | datetime.date,
     ]
-    attr_fn: Callable[
-        [southern_company_api.NicorUsageHistory],
-        dict[str, Any] | None,
-    ] | None = None
-    last_reset_fn: Callable[
-        [southern_company_api.NicorUsageHistory],
-        datetime.datetime | None,
-    ] | None = None
+    attr_fn: (
+        Callable[
+            [southern_company_api.NicorUsageHistory],
+            dict[str, Any] | None,
+        ]
+        | None
+    ) = None
+    last_reset_fn: (
+        Callable[
+            [southern_company_api.NicorUsageHistory],
+            datetime.datetime | None,
+        ]
+        | None
+    ) = None
     statistic_id: str | None = None
 
 
@@ -174,7 +187,9 @@ def _current_billing_period_cost(
         return None
     current_period = max(data.daily_usage, key=lambda d: d.date).billing_period
     return sum(
-        _safe_float(d.cost) for d in data.daily_usage if d.billing_period == current_period
+        _safe_float(d.cost)
+        for d in data.daily_usage
+        if d.billing_period == current_period
     )
 
 
@@ -260,7 +275,9 @@ def _billing_period_last_reset(
     latest = max(data.billing_periods, key=lambda p: p.date)
     start_date = latest.date - datetime.timedelta(days=latest.days_used - 1)
     return datetime.datetime(
-        start_date.year, start_date.month, start_date.day,
+        start_date.year,
+        start_date.month,
+        start_date.day,
         tzinfo=datetime.timezone.utc,
     )
 
@@ -473,14 +490,20 @@ class NicorGasSensor(SensorEntity, CoordinatorEntity[NicorGasCoordinator]):
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return additional state attributes."""
-        if self.coordinator.data is not None and self.entity_description.attr_fn is not None:
+        if (
+            self.coordinator.data is not None
+            and self.entity_description.attr_fn is not None
+        ):
             return self.entity_description.attr_fn(self.coordinator.data)
         return None
 
     @property
     def last_reset(self) -> datetime.datetime | None:
         """Return the time when the sensor was last reset."""
-        if self.coordinator.data is not None and self.entity_description.last_reset_fn is not None:
+        if (
+            self.coordinator.data is not None
+            and self.entity_description.last_reset_fn is not None
+        ):
             return self.entity_description.last_reset_fn(self.coordinator.data)
         return None
 
