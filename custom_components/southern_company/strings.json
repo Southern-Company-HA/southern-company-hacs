@@ -14,6 +14,15 @@
           "password": "[%key:common::config_flow::data::password%]",
           "account_type": "Account type"
         }
+      },
+      "reconfigure": {
+        "title": "Update credentials",
+        "description": "Change the username and/or password this integration signs in with.",
+        "data": {
+          "username": "[%key:common::config_flow::data::username%]",
+          "password": "[%key:common::config_flow::data::password%]",
+          "account_type": "Account type"
+        }
       }
     },
     "error": {
@@ -24,7 +33,8 @@
     },
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_service%]",
-      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]"
+      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]",
+      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
     }
   }
 }

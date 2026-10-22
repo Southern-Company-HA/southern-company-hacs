@@ -1,0 +1,4 @@
+FROM python:3.14
+COPY requirements_test.txt /tmp/requirements_test.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_test.txt
+WORKDIR /src

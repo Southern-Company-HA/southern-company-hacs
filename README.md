@@ -91,6 +91,16 @@ In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "S
 
 Configuration is done in the UI.
 
+To change the username or password later, open the integration and choose **Reconfigure** — no need to delete and re-add it.
+
+### Running the tests
+
+The config-flow tests run in Docker (Home Assistant's test harness needs Python 3.14):
+
+```console
+$ bash scripts/test.sh
+```
+
 <!---->
 
 ## Contributions are welcome!
