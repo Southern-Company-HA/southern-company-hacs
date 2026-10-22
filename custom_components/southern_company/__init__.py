@@ -107,7 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 f"Login failed. If you have not validated your email with Southern Company, "
                 f"visit {EMAIL_VALIDATION_URL} to do so."
             ) from err
-        coordinator = SouthernCompanyCoordinator(hass, sca)
+        coordinator = SouthernCompanyCoordinator(hass, sca, entry.entry_id)
 
     if entry.entry_id in failures:
         failures.pop(entry.entry_id)

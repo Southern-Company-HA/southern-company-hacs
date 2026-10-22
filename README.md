@@ -93,9 +93,21 @@ Configuration is done in the UI.
 
 To change the username or password later, open the integration and choose **Reconfigure** — no need to delete and re-add it.
 
+### Energy statistics
+
+Electric usage and cost are imported as long-term statistics for the Energy
+Dashboard, hourly when Southern Company provides it and daily otherwise. Each
+refresh appends new readings to the stored totals.
+
+If an earlier version reset the stored totals (large negative and positive
+spikes, see issue #146), a **Settings → System → Repairs** issue appears for
+that account. Confirming it rewrites the history from the first bad reading
+using Southern Company's data, hourly where available. Take a backup first.
+Damage older than the portal's ~700 days of history cannot be rebuilt.
+
 ### Running the tests
 
-The config-flow tests run in Docker (Home Assistant's test harness needs Python 3.14):
+The tests run in Docker (Home Assistant's test harness needs Python 3.14):
 
 ```console
 $ bash scripts/test.sh
