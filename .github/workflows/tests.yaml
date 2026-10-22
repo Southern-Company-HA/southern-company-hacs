@@ -41,7 +41,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    name: Config flow tests
+    name: Integration tests
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4

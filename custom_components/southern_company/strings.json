@@ -36,5 +36,22 @@
       "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]",
       "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
     }
+  },
+  "issues": {
+    "statistics_reset": {
+      "title": "Energy statistics for account {account} need a rebuild",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Rebuild energy statistics for account {account}",
+            "description": "The stored usage total for account {account} drops at {start}, which shows up as large negative and positive spikes in the Energy Dashboard.\n\nSubmitting rewrites the cost and usage history from that point using data from Southern Company (hourly where available). Earlier history is kept. Take a Home Assistant backup first; restoring it undoes the rebuild."
+          }
+        },
+        "abort": {
+          "not_loaded": "The integration is not loaded. Reload it and try again.",
+          "rebuild_failed": "The rebuild failed. Check the logs and try again."
+        }
+      }
+    }
   }
 }
